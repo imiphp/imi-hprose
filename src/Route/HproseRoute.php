@@ -55,13 +55,13 @@ class HproseRoute implements IRoute
         }
 
         // alias
-        if(Text::isEmpty($classAnnotation->prefix))
+        if(Text::isEmpty($controllerAnnotation->prefix))
         {
             $alias = $annotation->name;
         }
         else
         {
-            $alias = $classAnnotation->prefix . $annotation->name;
+            $alias = $controllerAnnotation->prefix . $annotation->name;
         }
 
         // funcOptions
