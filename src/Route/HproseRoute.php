@@ -73,7 +73,7 @@ class HproseRoute implements IRoute
             'passContext'   =>  $annotation->passContext,
         ];
 
-        $hproseServer->addFunction($callable, $alias);
+        $hproseServer->addFunction($callable, $alias, $funcOptions);
     }
 
     /**
