@@ -2,13 +2,17 @@
 namespace Imi\Server\Hprose;
 
 use Imi\App;
+use Imi\Log\Log;
 use Imi\Server\Base;
 use Imi\ServerManage;
+use Imi\RequestContext;
 use Imi\Event\EventParam;
+use Imi\Pool\PoolManager;
 use Imi\Server\Event\Param\CloseEventParam;
 use Imi\Server\Event\Param\BufferEventParam;
 use Imi\Server\Event\Param\ConnectEventParam;
 use Imi\Server\Event\Param\ReceiveEventParam;
+use Swoole\Coroutine;
 
 class Server extends Base
 {
@@ -45,6 +49,27 @@ class Server extends Base
         $this->swoolePort->set([]);
         $this->hproseService = new \Hprose\Swoole\Socket\Service;
         $this->parseConfig($config);
+        $this->hproseService->onBeforeInvoke = function($name, $args, $byref, \stdClass $context){
+            RequestContext::create();
+            RequestContext::set('server', $this);
+        };
+        $this->hproseService->onAfterInvoke = function($name, $args, $byref, &$result, \stdClass $context) {
+            if($result instanceof \Imi\Model\BaseModel)
+            {
+                $result = $result->toArray();
+            }
+            PoolManager::destroyCurrentContext();
+            RequestContext::destroy();
+        };
+        $this->hproseService->onSendError = function(\Throwable $error, \stdClass $context) {
+            Log::error($error->getMessage(), [
+                'trace'     => $error->getTrace(),
+                'errorFile' => $error->getFile(),
+                'errorLine' => $error->getLine(),
+            ]);
+            PoolManager::destroyCurrentContext();
+            RequestContext::destroy();
+        };
     }
 
     /**
