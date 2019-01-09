@@ -52,7 +52,7 @@ class Server extends Base
         $this->hproseService->onBeforeInvoke = function($name, $args, $byref, \stdClass $context){
             RequestContext::create();
             RequestContext::set('server', $this);
-            $this->trigger('onBeforeInvoke', [
+            $this->trigger('BeforeInvoke', [
                 'name'      => $name,
                 'args'      => $args,
                 'byref'     => $byref,
@@ -60,7 +60,7 @@ class Server extends Base
             ], $this);
         };
         $this->hproseService->onAfterInvoke = function($name, $args, $byref, &$result, \stdClass $context) {
-            $this->trigger('onAfterInvoke', [
+            $this->trigger('AfterInvoke', [
                 'name'      => $name,
                 'args'      => $args,
                 'byref'     => $byref,
