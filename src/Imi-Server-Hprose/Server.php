@@ -49,7 +49,7 @@ class Server extends Base
         $this->swoolePort->set([]);
         $this->hproseService = new \Hprose\Swoole\Socket\Service;
         $this->parseConfig($config);
-        $this->hproseService->onBeforeInvoke = function($name, $args, $byref, \stdClass $context){
+        $this->hproseService->onBeforeInvoke = function($name, &$args, $byref, \stdClass $context){
             RequestContext::create();
             RequestContext::set('server', $this);
             $this->trigger('BeforeInvoke', [
