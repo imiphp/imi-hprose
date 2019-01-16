@@ -54,7 +54,7 @@ class Server extends Base
             RequestContext::set('server', $this);
             $this->trigger('BeforeInvoke', [
                 'name'      => $name,
-                'args'      => $args,
+                'args'      => &$args,
                 'byref'     => $byref,
                 'context'   => $context,
             ], $this);
