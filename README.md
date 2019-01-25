@@ -18,7 +18,7 @@
 ```json
 {
     "require": {
-        "imiphp/imi-hprose": "~1.0"
+        "imiphp/imi-hprose": "^1.1"
     }
 }
 ```
