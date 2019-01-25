@@ -3,18 +3,18 @@ namespace Imi\Server\Hprose;
 
 use Imi\App;
 use Imi\Log\Log;
-use Imi\Server\Base;
 use Imi\ServerManage;
+use Swoole\Coroutine;
 use Imi\RequestContext;
 use Imi\Event\EventParam;
 use Imi\Pool\PoolManager;
+use Imi\Rpc\BaseRpcServer;
 use Imi\Server\Event\Param\CloseEventParam;
 use Imi\Server\Event\Param\BufferEventParam;
 use Imi\Server\Event\Param\ConnectEventParam;
 use Imi\Server\Event\Param\ReceiveEventParam;
-use Swoole\Coroutine;
 
-class Server extends Base
+class Server extends BaseRpcServer
 {
     /**
      * Hprose Service

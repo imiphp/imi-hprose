@@ -1,28 +1,25 @@
 <?php
 namespace Imi\Hprose\Route\Annotation;
 
-use Imi\Bean\Annotation\Base;
 use Imi\Bean\Annotation\Parser;
+use Imi\Rpc\Route\Annotation\RpcRoute;
 
 /**
  * Hprose 路由注解
  * @Annotation
  * @Target("METHOD")
- * @Parser("Imi\Hprose\Route\Annotation\Parser\HproseControllerParser")
+ * @Parser("Imi\Rpc\Route\Annotation\Parser\RpcControllerParser")
  */
-class HproseRoute extends Base
+class HproseRoute extends RpcRoute
 {
     /**
-     * 只传一个参数时的参数名
+     * RPC 协议类型
+     * 
+     * 继承本类后必须赋值
+     *
      * @var string
      */
-    protected $defaultFieldName = 'name';
-
-    /**
-     * 路由名称规则
-     * @var array
-     */
-    public $name;
+    public $rcpType = 'Hprose';
 
     /**
      * 该设置表示该服务函数返回的结果类型，它有4个取值，分别是：

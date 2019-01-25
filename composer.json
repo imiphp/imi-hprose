@@ -5,7 +5,8 @@
     "description": "在 imi 框架中集成 Hprose 服务开发",
     "require": {
 		"hprose/hprose": "^2.0",
-		"hprose/hprose-swoole": "dev-master"
+        "hprose/hprose-swoole": "dev-master",
+        "imiphp/imi-rpc": "^1.0"
     },
     "require-dev": {
         "yurunsoft/imi": "dev-dev"
