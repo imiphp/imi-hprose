@@ -15,13 +15,6 @@ use Imi\Util\Text;
 class HproseRoute implements IRoute
 {
     /**
-     * 路由规则
-     * url => Imi\Hprose\Route\Annotation\HproseRoute[]
-     * @var array
-     */
-    protected $rules = [];
-
-    /**
      * 路由解析处理
      * @param mixed $data
      * @return array
