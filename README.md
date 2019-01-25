@@ -32,7 +32,8 @@
 ```php
 [
     'components'    =>  [
-        // 引入本组件
+        // 引入RPC组件以及本组件
+        'Rpc'    	=>  'Imi\Rpc',
         'Hprose'    =>  'Imi\Hprose',
     ],
 ]
@@ -69,21 +70,21 @@
 
 ### 控制器基类
 
-`Imi\Hprose\Controller\HproseController`
+`Imi\Rpc\Controller\RpcController`
 
 ### 控制器注解
 
-`\Imi\Hprose\Route\Annotation\HproseController`
+`\Imi\Rpc\Route\Annotation\RpcController`
 
 用法：
 
-`@HproseController`
+`@RpcController`
 
-别名前缀：`@HproseController('a_b_')`
+别名前缀：`@RpcController('a_b_')`
 
 ### 动作注解
 
-`\Imi\Hprose\Route\Annotation\HproseAction`
+`\Imi\Rpc\Route\Annotation\RpcAction`
 
 无参
 
