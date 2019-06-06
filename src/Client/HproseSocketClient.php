@@ -4,6 +4,7 @@ namespace Imi\Hprose\Client;
 use Imi\Rpc\Client\IService;
 use Imi\Rpc\Client\IRpcClient;
 use Imi\App;
+use Imi\Event\Event;
 
 /**
  * Hprose Socket 客户端
@@ -41,6 +42,9 @@ class HproseSocketClient implements IRpcClient
     public function open()
     {
         $this->client = new \Hprose\Socket\Client($this->options['uris'], false);
+        Event::trigger('IMI.RPC.HPROSE.CLIENT.OPEN', [
+            'client'    =>  $this->client,
+        ], $this);
     }
 
     /**
