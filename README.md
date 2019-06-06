@@ -25,7 +25,7 @@
 
 然后执行 `composer update` 安装。
 
-## 使用
+## 服务端
 
 在项目 `config/config.php` 中配置：
 
@@ -102,6 +102,86 @@
 - `passContext` 该属性为 boolean 类型，默认值为 false。具体请参考 Hprose 文档
 
 > Hprose 文档参考：https://github.com/hprose/hprose-php/wiki/06-Hprose-服务器#addfunction-%E6%96%B9%E6%B3%95
+
+## 客户端
+
+### 连接池配置
+
+```php
+[
+	'pools'	=>	[
+		'连接池名'	=>	[
+			'sync'	=>	[
+				'pool'	=>	[
+					'class'		=>	\Imi\Rpc\Client\Pool\RpcClientSyncPool::class,
+					'config'	=>	[
+						// 连接池通用，查阅文档
+					],
+				],
+				'resource'	=>	[
+					'clientClass'	=>	\Imi\Hprose\Client\HproseSocketClient::class,
+					'uris'	=>	'tcp://127.0.0.1:50001', // 连接地址
+					// 其它配置
+				]
+			],
+			'async'	=>	[
+				'pool'	=>	[
+					'class'		=>	\Imi\Rpc\Client\Pool\RpcClientCoroutinePool::class,
+					'config'	=>	[
+						// 连接池通用，查阅文档
+					],
+				],
+				'resource'	=>	[
+					'clientClass'	=>	\Imi\Hprose\Client\HproseSocketClient::class,
+					'uris'	=>	'tcp://127.0.0.1:50001', // 连接地址
+					// 其它配置
+				]
+			],
+		],
+	],
+	'rpc'	=>	[
+		'defaultPool'	=>	'连接池名', // 默认连接池名
+	],
+]
+```
+
+### 客户端调用
+
+代码调用：
+
+```php
+\Imi\Rpc\Client\Pool\RpcClientPool::getService('服务名')->方法名(参数);
+```
+
+注解调用：
+
+```php
+class Test
+{
+	/**
+	 * @RpcClient()
+	 *
+	 * @var \Imi\Rpc\Client\IRpcClient
+	 */
+	protected $rpcClient;
+
+	/**
+	 * @RpcService(serviceName="服务名")
+	 *
+	 * @var \Imi\Rpc\Client\IService
+	 */
+	protected $xxxRpc;
+
+	public function aaa()
+	{
+		// 方法一
+		$this->rpcClient->getService('服务名')->方法名(参数);
+
+		// 方法二
+		$this->xxxRpc->方法名(参数);
+	}
+}
+```
 
 ## 免费技术支持
 
