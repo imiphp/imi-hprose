@@ -4,5 +4,6 @@ return [
         'Imi\Hprose\Listener',
         'Imi\Hprose\Route',
         'Imi\Server\Hprose',
+        'Imi\Server\Util',
     ],
 ];
