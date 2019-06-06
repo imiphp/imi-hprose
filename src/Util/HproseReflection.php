@@ -29,8 +29,20 @@ class HproseReflection
         $class = get_class($object);
         if(!isset($this->propertyReflections[$class][$propertyName]))
         {
-            $this->propertyReflections[$class][$propertyName] = $refProperty = new \ReflectionProperty($class, $propertyName);
-            $refProperty->setAccessible(true);
+            $className = $class;
+            do {
+                try {
+                    $this->propertyReflections[$class][$propertyName] = $refProperty = new \ReflectionProperty($className, $propertyName);
+                    $refProperty->setAccessible(true);
+                    break;
+                } catch(\Throwable $th) {
+                    $className = get_parent_class($className);
+                }
+            } while($className);
+            if(!$className)
+            {
+                throw new \RuntimeException(sprintf('Property %s::$%s does not exist', $class, $propertyName));
+            }
         }
         return $this->propertyReflections[$class][$propertyName]->getValue($object);
     }
