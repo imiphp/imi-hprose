@@ -20,11 +20,11 @@ class HproseReflection
     /**
      * 获取对象属性
      *
-     * @param object $object
+     * @param mixed $object
      * @param string $propertyName
      * @return mixed
      */
-    public function getObjectProperty(object $object, $propertyName)
+    public function getObjectProperty($object, $propertyName)
     {
         $class = get_class($object);
         if(!isset($this->propertyReflections[$class][$propertyName]))
