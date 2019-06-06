@@ -6,7 +6,7 @@
     "require": {
 		"hprose/hprose": "^2.0",
         "hprose/hprose-swoole": "dev-master",
-        "imiphp/imi-rpc": "dev-dev"
+        "imiphp/imi-rpc": "^1.1"
     },
     "require-dev": {
         "yurunsoft/imi": "dev-dev"
