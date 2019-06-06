@@ -62,20 +62,7 @@ class HproseSocketClient implements IRpcClient
      */
     public function isConnected(): bool
     {
-        if(!$this->client)
-        {
-            return false;
-        }
-        $hproseReflection = App::getBean('HproseReflection');
-        if($this->client->fullDuplex)
-        {
-            $trans = $hproseReflection->getObjectProperty($this->client, 'fdtrans');
-        }
-        else
-        {
-            $trans = $hproseReflection->getObjectProperty($this->client, 'hdtrans');
-        }
-        return !!$hproseReflection->getObjectProperty($trans, 'stream');
+        return true;
     }
 
     /**

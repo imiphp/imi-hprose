@@ -45,7 +45,19 @@ class HproseService implements IService
      */
     public function call($method, $args = [])
     {
-        return $this->client->{$this->name}(...$args);
+        return $this->client->getInstance()->{$this->name}->$method(...$args);
+    }
+
+    /**
+     * 魔术方法
+     *
+     * @param string $name 方法名
+     * @param string $arguments 参数
+     * @return void
+     */
+    public function __call($name, $arguments)
+    {
+        return $this->call($name, $arguments);
     }
 
     /**
