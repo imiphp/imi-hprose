@@ -29,7 +29,8 @@ class HproseReflection
         $class = get_class($object);
         if(!isset($this->propertyReflections[$class][$propertyName]))
         {
-            $this->propertyReflections[$class][$propertyName] = new \ReflectionProperty($class, $propertyName);
+            $this->propertyReflections[$class][$propertyName] = $refProperty = new \ReflectionProperty($class, $propertyName);
+            $refProperty->setAccessible(true);
         }
         return $this->propertyReflections[$class][$propertyName]->getValue($object);
     }
