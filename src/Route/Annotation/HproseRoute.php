@@ -19,7 +19,7 @@ class HproseRoute extends RpcRoute
      *
      * @var string
      */
-    public $rcpType = 'Hprose';
+    public $rpcType = 'Hprose';
 
     /**
      * 该设置表示该服务函数返回的结果类型，它有4个取值，分别是：

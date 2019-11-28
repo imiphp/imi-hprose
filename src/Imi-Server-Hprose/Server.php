@@ -230,4 +230,55 @@ class Server extends BaseRpcServer
     {
         return $this->hproseService;
     }
+
+    /**
+     * 获取 RPC 类型
+     *
+     * @return string
+     */
+    public function getRpcType(): string
+    {
+        return 'Hprose';
+    }
+
+    /**
+     * 获取控制器注解类
+     *
+     * @return string
+     */
+    public function getControllerAnnotation(): string
+    {
+        return \Imi\Rpc\Route\Annotation\RpcController::class;
+    }
+
+    /**
+     * 获取动作注解类
+     *
+     * @return string
+     */
+    public function getActionAnnotation(): string
+    {
+        return \Imi\Rpc\Route\Annotation\RpcAction::class;
+    }
+
+    /**
+     * 获取路由注解类
+     *
+     * @return string
+     */
+    public function getRouteAnnotation(): string
+    {
+        return \Imi\Hprose\Route\Annotation\HproseRoute::class;
+    }
+
+    /**
+     * 获取路由处理类
+     *
+     * @return string
+     */
+    public function getRouteClass(): string
+    {
+        return 'HproseRoute';
+    }
+
 }
