@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Imi\Server\Hprose;
 
 use Imi\App;
@@ -8,31 +10,25 @@ use Imi\Log\Log;
 use Imi\Pool\PoolManager;
 use Imi\RequestContext;
 use Imi\Rpc\BaseRpcServer;
-use Imi\Server\Event\Param\CloseEventParam;
-use Imi\Server\Event\Param\ConnectEventParam;
-use Imi\Server\Event\Param\ReceiveEventParam;
-use Imi\ServerManage;
+use Imi\Server\Protocol;
+use Imi\Server\ServerManager;
+use Imi\Swoole\Server\Event\Param\CloseEventParam;
+use Imi\Swoole\Server\Event\Param\ConnectEventParam;
+use Imi\Swoole\Server\Event\Param\ReceiveEventParam;
 
 class Server extends BaseRpcServer
 {
     /**
      * Hprose Service.
-     *
-     * @var \Hprose\Swoole\Socket\Service
      */
-    private $hproseService;
+    private \Hprose\Swoole\Socket\Service $hproseService;
 
-    /**
-     * @var bool
-     */
-    private $isHookHproseOn = false;
+    private bool $isHookHproseOn = false;
 
     /**
      * 创建 swoole 服务器对象
-     *
-     * @return void
      */
-    protected function createServer()
+    protected function createServer(): void
     {
         $config = $this->getServerInitConfig();
         $this->swooleServer = new \swoole_server($config['host'], $config['port'], $config['mode'], $config['sockType']);
@@ -42,20 +38,19 @@ class Server extends BaseRpcServer
 
     /**
      * 从主服务器监听端口，作为子服务器.
-     *
-     * @return void
      */
-    protected function createSubServer()
+    protected function createSubServer(): void
     {
         $config = $this->getServerInitConfig();
-        $this->swooleServer = ServerManage::getServer('main')->getSwooleServer();
+        /* @phpstan-ignore-next-line */
+        $this->swooleServer = ServerManager::getServer('main')->getSwooleServer();
         $this->swoolePort = $this->swooleServer->addListener($config['host'], $config['port'], $config['sockType']);
         $this->swoolePort->set([]);
         $this->hproseService = new \Hprose\Swoole\Socket\Service();
         $this->parseConfig($config);
         $this->hproseService->onBeforeInvoke = function ($name, &$args, $byref, \stdClass $context) {
-            RequestContext::create();
-            RequestContext::set('server', $this);
+            $requestContext = RequestContext::create();
+            $requestContext['server'] = $this;
             $this->trigger('BeforeInvoke', [
                 'name'      => $name,
                 'args'      => &$args,
@@ -91,10 +86,8 @@ class Server extends BaseRpcServer
 
     /**
      * 获取服务器初始化需要的配置.
-     *
-     * @return array
      */
-    protected function getServerInitConfig()
+    protected function getServerInitConfig(): array
     {
         return [
             'host'      => isset($this->config['host']) ? $this->config['host'] : '0.0.0.0',
@@ -106,10 +99,8 @@ class Server extends BaseRpcServer
 
     /**
      * 处理服务器配置.
-     *
-     * @return void
      */
-    private function parseConfig(array $config)
+    private function parseConfig(array $config): void
     {
         if (\SWOOLE_UNIX_STREAM !== $config['sockType'])
         {
@@ -126,10 +117,8 @@ class Server extends BaseRpcServer
      * @param string $name     事件名称
      * @param mixed  $callback 回调，支持回调函数、基于IEventListener的类名
      * @param int    $priority 优先级，越大越先执行
-     *
-     * @return void
      */
-    public function on($name, $callback, $priority = 0)
+    public function on($name, $callback, int $priority = 0): void
     {
         if ($this->isHookHproseOn)
         {
@@ -147,10 +136,8 @@ class Server extends BaseRpcServer
 
     /**
      * 绑定服务器事件.
-     *
-     * @return void
      */
-    protected function __bindEvents()
+    protected function __bindEvents(): void
     {
         $server = $this->swoolePort ?? $this->swooleServer;
 
@@ -158,13 +145,13 @@ class Server extends BaseRpcServer
         $this->hproseService->socketHandle($this);
         $this->isHookHproseOn = false;
 
-        $server->on('connect', function (\swoole_server $server, $fd, $reactorID) {
+        $server->on('connect', function (\swoole_server $server, $fd, $reactorId) {
             try
             {
                 $this->trigger('connect', [
                     'server'    => $this,
-                    'fd'        => $fd,
-                    'reactorID' => $reactorID,
+                    'clientId'  => $fd,
+                    'reactorId' => $reactorId,
                 ], $this, ConnectEventParam::class);
             }
             catch (\Throwable $ex)
@@ -173,13 +160,13 @@ class Server extends BaseRpcServer
             }
         });
 
-        $server->on('receive', function (\swoole_server $server, $fd, $reactorID, $data) {
+        $server->on('receive', function (\swoole_server $server, $fd, $reactorId, $data) {
             try
             {
                 $this->trigger('receive', [
                     'server'    => $this,
-                    'fd'        => $fd,
-                    'reactorID' => $reactorID,
+                    'clientId'  => $fd,
+                    'reactorId' => $reactorId,
                     'data'      => $data,
                 ], $this, ReceiveEventParam::class);
             }
@@ -189,13 +176,13 @@ class Server extends BaseRpcServer
             }
         });
 
-        $server->on('close', function (\swoole_server $server, $fd, $reactorID) {
+        $server->on('close', function (\swoole_server $server, $fd, $reactorId) {
             try
             {
                 $this->trigger('close', [
                     'server'    => $this,
-                    'fd'        => $fd,
-                    'reactorID' => $reactorID,
+                    'clientId'  => $fd,
+                    'reactorId' => $reactorId,
                 ], $this, CloseEventParam::class);
             }
             catch (\Throwable $ex)
@@ -207,18 +194,14 @@ class Server extends BaseRpcServer
 
     /**
      * Get hprose Service.
-     *
-     * @return \Hprose\Swoole\Socket\Service
      */
-    public function getHproseService()
+    public function getHproseService(): \Hprose\Swoole\Socket\Service
     {
         return $this->hproseService;
     }
 
     /**
      * 获取 RPC 类型.
-     *
-     * @return string
      */
     public function getRpcType(): string
     {
@@ -227,8 +210,6 @@ class Server extends BaseRpcServer
 
     /**
      * 获取控制器注解类.
-     *
-     * @return string
      */
     public function getControllerAnnotation(): string
     {
@@ -237,8 +218,6 @@ class Server extends BaseRpcServer
 
     /**
      * 获取动作注解类.
-     *
-     * @return string
      */
     public function getActionAnnotation(): string
     {
@@ -247,8 +226,6 @@ class Server extends BaseRpcServer
 
     /**
      * 获取路由注解类.
-     *
-     * @return string
      */
     public function getRouteAnnotation(): string
     {
@@ -257,11 +234,33 @@ class Server extends BaseRpcServer
 
     /**
      * 获取路由处理类.
-     *
-     * @return string
      */
     public function getRouteClass(): string
     {
         return 'HproseRoute';
+    }
+
+    /**
+     * 是否为长连接服务
+     */
+    public function isLongConnection(): bool
+    {
+        return true;
+    }
+
+    /**
+     * 是否支持 SSL.
+     */
+    public function isSSL(): bool
+    {
+        return false;
+    }
+
+    /**
+     * 获取协议名称.
+     */
+    public function getProtocol(): string
+    {
+        return Protocol::TCP;
     }
 }
