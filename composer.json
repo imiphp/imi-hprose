@@ -1,14 +1,13 @@
 {
     "name": "imiphp/imi-hprose",
     "type": "library",
-    "license": "MIT",
+    "license": "MulanPSL-2.0",
     "description": "在 imi 框架中集成 Hprose 服务开发",
     "require": {
-        "php": ">=7.4 <8.2",
         "hprose/hprose": "^2.0",
         "hprose/hprose-swoole": "^2.0.12",
-        "imiphp/imi-rpc": "~2.0.0",
-        "imiphp/imi-swoole": "~2.0.0"
+        "imiphp/imi-rpc": "~3.0.0",
+        "imiphp/imi-swoole": "~3.0.0"
     },
     "require-dev": {},
     "autoload": {
@@ -31,5 +30,7 @@
         "pre-update-cmd": "Imi\\Hprose\\Dev\\Dev::preUpdate",
         "post-install-cmd": "Imi\\Hprose\\Dev\\Dev::postUpdate",
         "post-update-cmd": "Imi\\Hprose\\Dev\\Dev::postUpdate"
-    }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }

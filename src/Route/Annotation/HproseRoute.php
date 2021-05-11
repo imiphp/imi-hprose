@@ -11,7 +11,9 @@ use Imi\Rpc\Route\Annotation\RpcRoute;
  * Hprose 路由注解.
  *
  * @Annotation
+ *
  * @Target("METHOD")
+ *
  * @Parser("Imi\Rpc\Route\Annotation\Parser\RpcControllerParser")
  *
  * @property string $rpcType     RPC 协议类型；继承本类后必须赋值
