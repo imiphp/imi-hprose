@@ -1,14 +1,16 @@
 <?php
+
 namespace Imi\Hprose\Route;
 
-use Imi\Util\Text;
-use Imi\ServerManage;
 use Imi\Bean\Annotation\Bean;
-use Imi\Rpc\Route\IRoute;
-use Imi\Server\Route\RouteCallable;
+use Imi\Hprose\Route\Annotation\HproseRoute;
 use Imi\Rpc\Route\Annotation\Contract\IRpcController;
 use Imi\Rpc\Route\Annotation\Contract\IRpcRoute;
-use Imi\Hprose\Route\Annotation\HproseRoute;
+use Imi\Rpc\Route\Annotation\RpcController;
+use Imi\Rpc\Route\IRoute;
+use Imi\Server\Route\RouteCallable;
+use Imi\ServerManage;
+use Imi\Util\Text;
 
 /**
  * @Bean("HproseRoute")
@@ -16,9 +18,11 @@ use Imi\Hprose\Route\Annotation\HproseRoute;
 class Route implements IRoute
 {
     /**
-     * 路由解析处理
+     * 路由解析处理.
+     *
      * @param mixed $data
-     * @return array
+     *
+     * @return array|null
      */
     public function parse($data)
     {
@@ -27,75 +31,85 @@ class Route implements IRoute
     }
 
     /**
-     * 增加路由规则，直接使用注解方式
-     * 
-     * @param \Imi\Rpc\Route\Annotation\Contract\IRpcController $controllerAnnotation
-     * @param \Imi\Rpc\Route\Annotation\Contract\IRpcRoute $routeAnnotation
-     * @param mixed $callable
-     * @param array $options
+     * 增加路由规则，直接使用注解方式.
+     *
+     * @param RpcController $controllerAnnotation
+     * @param HproseRoute   $routeAnnotation
+     * @param mixed         $callable
+     * @param array         $options
+     *
      * @return void
      */
     public function addRuleAnnotation(IRpcController $controllerAnnotation, IRpcRoute $routeAnnotation, $callable, $options = [])
     {
         // callable
         $callable = $this->parseCallable($callable);
-        $isObject = is_array($callable) && isset($callable[0]) && $callable[0] instanceof IRpcController;
-        if($isObject)
+        $isObject = \is_array($callable) && isset($callable[0]) && $callable[0] instanceof IRpcController;
+        if ($isObject)
         {
             // 复制一份控制器对象
             $callable[0] = clone $callable[0];
         }
 
         $serverName = $options['serverName'];
+        /** @var \Hprose\Swoole\Socket\Service $hproseServer */
+        // @phpstan-ignore-next-line
         $hproseServer = ServerManage::getServer($serverName)->getHproseService();
 
         // alias
-        if(Text::isEmpty($controllerAnnotation->prefix))
+        if (Text::isEmpty($controllerAnnotation->prefix))
         {
             $alias = $routeAnnotation->name;
         }
-        else
+        // @phpstan-ignore-next-line
+        elseif (\is_string($routeAnnotation->name))
         {
             $alias = $controllerAnnotation->prefix . $routeAnnotation->name;
+        }
+        else
+        {
+            throw new \RuntimeException('Invalid route');
         }
 
         // funcOptions
         $funcOptions = [
-            'mode'          =>  $routeAnnotation->mode,
-            'simple'        =>  $routeAnnotation->simple,
-            'oneway'        =>  $routeAnnotation->oneway,
-            'async'         =>  $routeAnnotation->async,
-            'passContext'   =>  $routeAnnotation->passContext,
+            'mode'          => $routeAnnotation->mode,
+            'simple'        => $routeAnnotation->simple,
+            'oneway'        => $routeAnnotation->oneway,
+            'async'         => $routeAnnotation->async,
+            'passContext'   => $routeAnnotation->passContext,
         ];
 
         $hproseServer->addFunction($callable, $alias, $funcOptions);
     }
 
     /**
-     * 获取缺省的路由注解
+     * 获取缺省的路由注解.
      *
-     * @param string $className
-     * @param string $methodName
+     * @param string                                            $className
+     * @param string                                            $methodName
      * @param \Imi\Rpc\Route\Annotation\Contract\IRpcController $controllerAnnotation
-     * @param array $options
-     * @return Imi\Rpc\Route\Annotation\Contract\IRpcRoute
+     * @param array                                             $options
+     *
+     * @return HproseRoute
      */
     public function getDefaultRouteAnnotation($className, $methodName, IRpcController $controllerAnnotation, $options = [])
     {
         return new HproseRoute([
-            'name'      =>  $methodName,
+            'name'      => $methodName,
         ]);
     }
 
     /**
-     * 处理回调
-     * @param array $params
-     * @param mixed $callable
+     * 处理回调.
+     *
+     * @param callable|RouteCallable $callable
+     *
      * @return callable
      */
     private function parseCallable($callable)
     {
-        if($callable instanceof RouteCallable)
+        if ($callable instanceof RouteCallable)
         {
             return $callable->getCallable();
         }
@@ -104,5 +118,4 @@ class Route implements IRoute
             return $callable;
         }
     }
-
 }
