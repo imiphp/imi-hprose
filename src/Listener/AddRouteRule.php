@@ -1,12 +1,13 @@
 <?php
+
 namespace Imi\Hprose\Listener;
 
-use Imi\Util\Text;
-use Imi\ServerManage;
+use Imi\Bean\Annotation\Listener;
 use Imi\Event\EventParam;
 use Imi\Event\IEventListener;
-use Imi\Bean\Annotation\Listener;
 use Imi\Hprose\Route\Annotation\HproseRoute as HproseRouteAnnotation;
+use Imi\ServerManage;
+use Imi\Util\Text;
 
 /**
  * @Listener("IMI.RPC.ROUTE.ADD_RULE:Hprose")
@@ -14,8 +15,10 @@ use Imi\Hprose\Route\Annotation\HproseRoute as HproseRouteAnnotation;
 class AddRouteRule implements IEventListener
 {
     /**
-     * 事件处理方法
+     * 事件处理方法.
+     *
      * @param EventParam $e
+     *
      * @return void
      */
     public function handle(EventParam $e)
@@ -25,20 +28,24 @@ class AddRouteRule implements IEventListener
     }
 
     /**
-     * 增加路由规则，直接使用注解方式
+     * 增加路由规则，直接使用注解方式.
+     *
      * @param \Imi\Hprose\Route\Annotation\HproseRoute $annotation
-     * @param mixed $callable
-     * @param array $options
+     * @param mixed                                    $callable
+     * @param array                                    $options
+     *
      * @return void
      */
     private function addRuleAnnotation(HproseRouteAnnotation $annotation, $callable, $options = [])
     {
         $serverName = $options['serverName'];
         $controllerAnnotation = $options['controller'];
+        /** @var \Hprose\Swoole\Socket\Service $hproseServer */
+        // @phpstan-ignore-next-line
         $hproseServer = ServerManage::getServer($serverName)->getHproseService();
 
         // alias
-        if(Text::isEmpty($controllerAnnotation->prefix))
+        if (Text::isEmpty($controllerAnnotation->prefix))
         {
             $alias = $annotation->name;
         }
@@ -49,11 +56,11 @@ class AddRouteRule implements IEventListener
 
         // funcOptions
         $funcOptions = [
-            'mode'          =>  $annotation->mode,
-            'simple'        =>  $annotation->simple,
-            'oneway'        =>  $annotation->oneway,
-            'async'         =>  $annotation->async,
-            'passContext'   =>  $annotation->passContext,
+            'mode'          => $annotation->mode,
+            'simple'        => $annotation->simple,
+            'oneway'        => $annotation->oneway,
+            'async'         => $annotation->async,
+            'passContext'   => $annotation->passContext,
         ];
 
         $hproseServer->addFunction($callable, $alias, $funcOptions);

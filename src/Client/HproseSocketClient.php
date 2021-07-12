@@ -1,32 +1,32 @@
 <?php
+
 namespace Imi\Hprose\Client;
 
-use Imi\Rpc\Client\IService;
-use Imi\Rpc\Client\IRpcClient;
-use Imi\App;
 use Imi\Event\Event;
+use Imi\Rpc\Client\IRpcClient;
+use Imi\Rpc\Client\IService;
 
 /**
- * Hprose Socket 客户端
+ * Hprose Socket 客户端.
  */
 class HproseSocketClient implements IRpcClient
 {
     /**
-     * Client
+     * Client.
      *
-     * @var \Hprose\Socket\Client
+     * @var \Hprose\Socket\Client|null
      */
     protected $client;
 
     /**
-     * 配置
+     * 配置.
      *
      * @var array
      */
     protected $options;
 
     /**
-     * 构造方法
+     * 构造方法.
      *
      * @param array $options 配置
      */
@@ -37,18 +37,22 @@ class HproseSocketClient implements IRpcClient
 
     /**
      * 打开
-     * @return boolean
+     *
+     * @return bool
      */
     public function open()
     {
         $this->client = new \Hprose\Socket\Client($this->options['uris'], false);
         Event::trigger('IMI.RPC.HPROSE.CLIENT.OPEN', [
-            'client'    =>  $this->client,
+            'client'    => $this->client,
         ], $this);
+
+        return true;
     }
 
     /**
-     * 关闭
+     * 关闭.
+     *
      * @return void
      */
     public function close()
@@ -57,7 +61,8 @@ class HproseSocketClient implements IRpcClient
     }
 
     /**
-     * 是否已连接
+     * 是否已连接.
+     *
      * @return bool
      */
     public function isConnected(): bool
@@ -79,15 +84,16 @@ class HproseSocketClient implements IRpcClient
      * 获取服务对象
      *
      * @param string $name 服务名
+     *
      * @return \Imi\Rpc\Client\IService
      */
-    public function getService($name = null): \Imi\Rpc\Client\IService
+    public function getService($name = null): IService
     {
         return new HproseService($this, $name);
     }
 
     /**
-     * 获取配置
+     * 获取配置.
      *
      * @return array
      */
@@ -95,5 +101,4 @@ class HproseSocketClient implements IRpcClient
     {
         return $this->options;
     }
-
 }

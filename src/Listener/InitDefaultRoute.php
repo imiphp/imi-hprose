@@ -1,9 +1,10 @@
 <?php
+
 namespace Imi\Hprose\Listener;
 
+use Imi\Bean\Annotation\Listener;
 use Imi\Event\EventParam;
 use Imi\Event\IEventListener;
-use Imi\Bean\Annotation\Listener;
 use Imi\Hprose\Route\Annotation\HproseRoute;
 
 /**
@@ -12,8 +13,10 @@ use Imi\Hprose\Route\Annotation\HproseRoute;
 class InitDefaultRoute implements IEventListener
 {
     /**
-     * 事件处理方法
+     * 事件处理方法.
+     *
      * @param EventParam $e
+     *
      * @return void
      */
     public function handle(EventParam $e)
@@ -23,18 +26,19 @@ class InitDefaultRoute implements IEventListener
     }
 
     /**
-     * 初始化
+     * 初始化.
      *
-     * @param string $className
+     * @param string                                  $className
      * @param \Imi\Rpc\Route\Annotation\RpcController $classAnnotation
-     * @param string $methodName
-     * @param \Imi\Rpc\Route\Annotation\RpcRoute $result
+     * @param string                                  $methodName
+     * @param \Imi\Rpc\Route\Annotation\RpcRoute      $result
+     *
      * @return void
      */
     private function init($className, $classAnnotation, $methodName, &$result)
     {
         $result = new HproseRoute([
-            'name'      =>  $methodName,
+            'name'      => $methodName,
         ]);
     }
 }
